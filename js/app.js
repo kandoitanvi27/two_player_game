@@ -72,7 +72,7 @@ const App = (() => {
         },
         {
             id: 'reversi',
-            title: 'Reversi',
+            title: 'Othello',
             emoji: '⚫⚪',
             image: 'assets/images/reversi.png',
             desc: 'Flip your opponent\'s discs by flanking them!',
