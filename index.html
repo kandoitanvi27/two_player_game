@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A collection of classic two-player board games — play Tic Tac Toe, Connect Four, Dots and Boxes, Reversi, Checkers, and Battleship with a friend!">
+    <title>Two-Player Games Arena</title>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Anime.js -->
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <a href="#/" class="header__logo" id="header-logo">
+            <span class="header__logo-icon">🎮</span>
+            <span class="header__logo-text">GameArena</span>
+        </a>
+        <nav class="header__nav" id="header-nav">
+            <span class="header__game-title" id="header-game-title"></span>
+            <button class="btn btn--outline btn--sm header__rules-btn" id="rules-btn" style="display:none;">
+                📖 Rules
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main" id="app">
+        <!-- Content injected by app.js -->
+    </main>
+
+    <!-- Result Modal -->
+    <div class="modal-overlay" id="result-modal" style="display:none;">
+        <div class="modal" id="result-modal-content">
+            <div class="modal__icon" id="result-icon"></div>
+            <h2 class="modal__title" id="result-title"></h2>
+            <p class="modal__subtitle" id="result-subtitle"></p>
+            <div class="modal__scores" id="result-scores"></div>
+            <div class="modal__actions">
+                <button class="btn btn--primary" id="result-restart-btn">🔄 Play Again</button>
+                <button class="btn btn--outline" id="result-lobby-btn">🏠 Back to Lobby</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rules Modal -->
+    <div class="modal-overlay" id="rules-modal" style="display:none;">
+        <div class="modal modal--rules" id="rules-modal-content">
+            <button class="modal__close" id="rules-close-btn">✕</button>
+            <h2 class="modal__title" id="rules-title"></h2>
+            <div class="modal__body" id="rules-body"></div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/games/tic-tac-toe.js"></script>
+    <script src="js/games/connect-four.js"></script>
+    <script src="js/games/dots-boxes.js"></script>
+    <script src="js/games/reversi.js"></script>
+    <script src="js/games/checkers.js"></script>
+    <script src="js/games/battleship.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
