@@ -238,7 +238,7 @@ const Checkers = (() => {
                     playerNames: PLAYER_NAMES,
                     scores: scoreTracker.getScores(),
                     onRestart: restart,
-                    onLobby: () => { window.location.hash = '#/'; }
+                    onLobby: () => { window.location.hash = '#/two-player'; }
                 });
             }, 600);
             return;
@@ -256,7 +256,7 @@ const Checkers = (() => {
                     playerNames: PLAYER_NAMES,
                     scores: scoreTracker.getScores(),
                     onRestart: restart,
-                    onLobby: () => { window.location.hash = '#/'; }
+                    onLobby: () => { window.location.hash = '#/two-player'; }
                 });
             }, 600);
             return;

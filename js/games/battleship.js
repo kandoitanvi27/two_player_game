@@ -116,7 +116,7 @@ const Battleship = (() => {
         });
 
         document.getElementById('bs-lobby-btn').addEventListener('click', () => {
-            window.location.hash = '#/';
+            window.location.hash = '#/two-player';
         });
     }
 
@@ -250,7 +250,7 @@ const Battleship = (() => {
             renderSetup();
         });
         document.getElementById('bs-trans-lobby-btn').addEventListener('click', () => {
-            window.location.hash = '#/';
+            window.location.hash = '#/two-player';
         });
     }
 
@@ -398,7 +398,7 @@ const Battleship = (() => {
                         playerNames: PLAYER_NAMES,
                         scores: scoreTracker.getScores(),
                         onRestart: restart,
-                        onLobby: () => { window.location.hash = '#/'; }
+                        onLobby: () => { window.location.hash = '#/two-player'; }
                     });
                 }, 800);
                 return;
@@ -440,7 +440,7 @@ const Battleship = (() => {
             renderBattle();
         });
         document.getElementById('bs-battle-lobby-btn').addEventListener('click', () => {
-            window.location.hash = '#/';
+            window.location.hash = '#/two-player';
         });
     }
 

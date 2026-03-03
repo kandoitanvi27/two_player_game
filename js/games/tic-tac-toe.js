@@ -104,7 +104,7 @@ const TicTacToe = (() => {
                     playerNames: PLAYER_NAMES,
                     scores: scoreTracker.getScores(),
                     onRestart: restart,
-                    onLobby: () => { window.location.hash = '#/'; }
+                    onLobby: () => { window.location.hash = '#/two-player'; }
                 });
             }, 800);
             return;
@@ -121,7 +121,7 @@ const TicTacToe = (() => {
                     playerNames: PLAYER_NAMES,
                     scores: scoreTracker.getScores(),
                     onRestart: restart,
-                    onLobby: () => { window.location.hash = '#/'; }
+                    onLobby: () => { window.location.hash = '#/two-player'; }
                 });
             }, 500);
             return;

@@ -293,7 +293,7 @@ function buildControlBar(callbacks) {
     lobbyBtn.id = 'lobby-btn';
     lobbyBtn.textContent = '🏠 Lobby';
     lobbyBtn.addEventListener('click', () => {
-        window.location.hash = '#/';
+        window.location.hash = '#/two-player';
     });
 
     bar.appendChild(undoBtn);

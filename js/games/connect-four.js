@@ -147,7 +147,7 @@ const ConnectFour = (() => {
                     playerNames: PLAYER_NAMES,
                     scores: scoreTracker.getScores(),
                     onRestart: restart,
-                    onLobby: () => { window.location.hash = '#/'; }
+                    onLobby: () => { window.location.hash = '#/two-player'; }
                 });
             }, 900);
             return;
@@ -164,7 +164,7 @@ const ConnectFour = (() => {
                     playerNames: PLAYER_NAMES,
                     scores: scoreTracker.getScores(),
                     onRestart: restart,
-                    onLobby: () => { window.location.hash = '#/'; }
+                    onLobby: () => { window.location.hash = '#/two-player'; }
                 });
             }, 500);
             return;

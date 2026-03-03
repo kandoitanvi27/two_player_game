@@ -3,7 +3,7 @@
    ============================================ */
 
 const App = (() => {
-    // Game registry
+    // Game registry — Two Player games
     const GAMES = [
         {
             id: 'tic-tac-toe',
@@ -143,6 +143,35 @@ const App = (() => {
         }
     ];
 
+    // Mode cards configuration
+    const MODES = [
+        {
+            id: 'single-player',
+            title: 'Single Player',
+            subtitle: 'Solo puzzles and brain teasers',
+            image: 'assets/images/mode-single-player.png',
+            glowClass: 'mode-card--purple',
+            comingSoon: true
+        },
+        {
+            id: 'two-player',
+            title: 'Two Player',
+            subtitle: 'Challenge a friend on one screen or play against computer',
+            image: 'assets/images/mode-two-player.png',
+            glowClass: 'mode-card--cyan',
+            comingSoon: false
+        },
+        {
+            id: 'multiplayer',
+            title: 'Multiplayer',
+            subtitle: 'Play with friends online',
+            image: 'assets/images/mode-multiplayer.png',
+            glowClass: 'mode-card--pink',
+            comingSoon: true,
+            comingSoonGames: 'Ludo, Snakes & Ladders'
+        }
+    ];
+
     let currentGame = null;
     let currentGameId = null;
 
@@ -159,29 +188,121 @@ const App = (() => {
     }
 
     function handleRoute() {
+        window.scrollTo(0, 0);
         const hash = window.location.hash || '#/';
-        const route = hash.replace('#/', '').replace('/', '');
+        const path = hash.replace('#/', '');
 
-        if (!route) {
-            showLobby();
-        } else {
-            const game = GAMES.find(g => g.id === route);
-            if (game) {
-                showGame(game);
-            } else {
-                showLobby();
-            }
-        }
-    }
-
-    function showLobby() {
-        // Destroy current game
+        // Destroy any current game
         if (currentGame && currentGame.destroy) {
             currentGame.destroy();
             currentGame = null;
             currentGameId = null;
         }
 
+        if (!path) {
+            // Landing page — mode selection
+            showModeSelect();
+        } else if (path === 'two-player') {
+            // Two-player game lobby
+            showLobby();
+        } else if (path.startsWith('two-player/')) {
+            // Individual game
+            const gameId = path.replace('two-player/', '');
+            const game = GAMES.find(g => g.id === gameId);
+            if (game) {
+                showGame(game);
+            } else {
+                showLobby();
+            }
+        } else {
+            // Legacy support: direct game IDs (e.g. #/tic-tac-toe)
+            const game = GAMES.find(g => g.id === path);
+            if (game) {
+                // Redirect to new route
+                window.location.hash = `#/two-player/${game.id}`;
+            } else {
+                showModeSelect();
+            }
+        }
+    }
+
+    function showModeSelect() {
+        // Update header
+        document.getElementById('header-game-title').textContent = '';
+        document.getElementById('rules-btn').style.display = 'none';
+
+        const app = document.getElementById('app');
+        app.innerHTML = `
+            <div class="mode-select">
+                <div class="mode-select__hero">
+                    <h1 class="mode-select__title">Games Arena</h1>
+                    <p class="mode-select__subtitle">Choose your game mode</p>
+                </div>
+                <div class="mode-select__grid" id="mode-grid"></div>
+            </div>
+        `;
+
+        const grid = document.getElementById('mode-grid');
+        MODES.forEach((mode, index) => {
+            const card = document.createElement('div');
+            card.className = `mode-card ${mode.glowClass}`;
+            card.id = `mode-${mode.id}`;
+
+            let bottomContent = '';
+            if (mode.comingSoon) {
+                bottomContent = `
+                    <span class="mode-card__badge">Coming Soon</span>
+                    ${mode.comingSoonGames ? `<p class="mode-card__games">${mode.comingSoonGames}</p>` : ''}
+                `;
+            } else {
+                // Show 4 game preview thumbnails for two-player
+                const previewGames = GAMES.slice(0, 4);
+                bottomContent = `
+                    <div class="mode-card__previews">
+                        ${previewGames.map(g => `
+                            <div class="mode-card__preview-item">
+                                ${g.image
+                        ? `<img src="${g.image}" alt="${g.title}" loading="lazy">`
+                        : `<span>${g.emoji}</span>`
+                    }
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            card.innerHTML = `
+                <div class="mode-card__image">
+                    <img src="${mode.image}" alt="${mode.title}" loading="lazy">
+                </div>
+                <h2 class="mode-card__title">${mode.title}</h2>
+                <p class="mode-card__subtitle">${mode.subtitle}</p>
+                ${bottomContent}
+            `;
+
+            card.addEventListener('click', () => {
+                if (mode.comingSoon) {
+                    showToast(`${mode.title} — Coming Soon!`, 'info');
+                } else {
+                    window.location.hash = `#/${mode.id}`;
+                }
+            });
+
+            grid.appendChild(card);
+        });
+
+        // Animate cards in
+        anime({
+            targets: '.mode-card',
+            opacity: [0, 1],
+            translateY: [60, 0],
+            delay: anime.stagger(120),
+            duration: 600,
+            easing: 'easeOutCubic'
+        });
+    }
+
+    function showLobby() {
         // Update header
         document.getElementById('header-game-title').textContent = '';
         document.getElementById('rules-btn').style.display = 'none';
@@ -190,10 +311,13 @@ const App = (() => {
         app.innerHTML = `
             <div class="lobby">
                 <div class="lobby__hero">
-                    <h1 class="lobby__title">Two-Player Games Arena</h1>
-                    <p class="lobby__subtitle">Pick a game and challenge a friend — all on one screen!</p>
+                    <h1 class="lobby__title">Two Player Games</h1>
+                    <p class="lobby__subtitle">Challenge a friend on one screen or play against computer!</p>
                 </div>
                 <div class="lobby__grid" id="lobby-grid"></div>
+                <div style="text-align: center; margin-top: var(--space-xl);">
+                    <button class="btn btn--outline" id="back-to-modes">← Back to Modes</button>
+                </div>
             </div>
         `;
 
@@ -216,9 +340,13 @@ const App = (() => {
                 </div>
             `;
             card.addEventListener('click', () => {
-                window.location.hash = `#/${game.id}`;
+                window.location.hash = `#/two-player/${game.id}`;
             });
             grid.appendChild(card);
+        });
+
+        document.getElementById('back-to-modes').addEventListener('click', () => {
+            window.location.hash = '#/';
         });
 
         // Animate cards in
@@ -233,11 +361,6 @@ const App = (() => {
     }
 
     function showGame(game) {
-        // Destroy previous game
-        if (currentGame && currentGame.destroy) {
-            currentGame.destroy();
-        }
-
         currentGameId = game.id;
 
         // Update header
@@ -266,7 +389,7 @@ const App = (() => {
                 <div class="game-page fade-in" style="justify-content: center;">
                     <h2 style="color: var(--text-muted);">🚧 ${game.title} — Coming Soon!</h2>
                     <p style="color: var(--text-muted); margin-top: var(--space-md);">This game is under development.</p>
-                    <button class="btn btn--outline" style="margin-top: var(--space-xl);" onclick="location.hash='#/'">🏠 Back to Lobby</button>
+                    <button class="btn btn--outline" style="margin-top: var(--space-xl);" onclick="location.hash='#/two-player'">🏠 Back to Lobby</button>
                 </div>
             `;
         }
