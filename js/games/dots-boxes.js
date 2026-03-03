@@ -28,12 +28,23 @@ const DotsBoxes = (() => {
         container.innerHTML = `
             ${buildTurnIndicator(PLAYER_NAMES)}
             ${buildScoreboard(scoreTracker.getScores(), PLAYER_NAMES)}
+            <div class="db-box-counter" id="db-box-counter">
+                <span class="db-count db-count--p1" id="db-box-count-0">★ 0</span>
+                <span class="db-count db-count--p2" id="db-box-count-1">✦ 0</span>
+            </div>
             <div class="db-board" id="db-board"></div>
         `;
         container.appendChild(buildControlBar({
             onUndo: undo,
             onRestart: restart
         }));
+    }
+
+    function updateBoxCounter() {
+        const el0 = document.getElementById('db-box-count-0');
+        const el1 = document.getElementById('db-box-count-1');
+        if (el0) el0.textContent = `★ ${boxScores[0]}`;
+        if (el1) el1.textContent = `✦ ${boxScores[1]}`;
     }
 
     function startNewRound() {
@@ -49,6 +60,7 @@ const DotsBoxes = (() => {
         undoStack.clear();
         renderBoard();
         updateTurnIndicator(0);
+        updateBoxCounter();
     }
 
     function renderBoard() {
@@ -178,6 +190,7 @@ const DotsBoxes = (() => {
         const completed = checkBoxCompletion(type, r, c, player);
 
         if (completed > 0) {
+            updateBoxCounter();
             // Extra turn for the current player
             showToast(`${PLAYER_NAMES[player]} completed ${completed} box${completed > 1 ? 'es' : ''}! Extra turn!`, 'success');
         } else {
@@ -280,6 +293,7 @@ const DotsBoxes = (() => {
         turnManager.current = state.player;
         renderBoard();
         updateTurnIndicator(state.player);
+        updateBoxCounter();
     }
 
     function restart() {

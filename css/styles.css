@@ -972,6 +972,25 @@ button {
     animation: win-pulse 0.8s ease-in-out infinite alternate;
 }
 
+/* ---------- Dots & Boxes Box Counter ---------- */
+.db-box-counter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xl);
+    margin-bottom: var(--space-md);
+    font-size: var(--font-size-md);
+    font-weight: 600;
+}
+
+.db-count--p1 {
+    color: #4a90ff;
+}
+
+.db-count--p2 {
+    color: #ff4a4a;
+}
+
 /* ---------- Dots and Boxes ---------- */
 .db-board {
     display: inline-block;
