@@ -134,22 +134,9 @@ const Checkers = (() => {
 
         // If clicking on own piece, select it
         if (piece !== EMPTY && getOwner(piece) === player) {
-            // If there's forced capture, only allow selecting pieces that can capture
-            const captures = getAllCaptures(player);
-            if (captures.length > 0) {
-                const pieceCapturesMoves = captures.filter(m => m.from[0] === row && m.from[1] === col);
-                if (pieceCapturesMoves.length === 0) {
-                    showToast('You must make a capture!', 'warning');
-                    return;
-                }
-                selectedPiece = [row, col];
-                validMoves = pieceCapturesMoves;
-                mustCapture = true;
-            } else {
-                selectedPiece = [row, col];
-                validMoves = getMovesForPiece(row, col, player);
-                mustCapture = false;
-            }
+            selectedPiece = [row, col];
+            validMoves = getMovesForPiece(row, col, player);
+            mustCapture = false;
             renderBoard();
             return;
         }
@@ -292,17 +279,11 @@ const Checkers = (() => {
     }
 
     function getMovesForPiece(row, col, player) {
-        const captures = getCapturesForPiece(row, col, player);
-        if (captures.length > 0) return captures;
-
-        // Check if any other piece has captures (forced capture rule)
-        const allCaptures = getAllCaptures(player);
-        if (allCaptures.length > 0) return [];
-
         const piece = board[row][col];
         const moves = [];
         const directions = getMoveDirections(piece, player);
 
+        // Add regular moves
         for (const [dr, dc] of directions) {
             const nr = row + dr;
             const nc = col + dc;
@@ -310,6 +291,10 @@ const Checkers = (() => {
                 moves.push({ from: [row, col], to: [nr, nc], captures: [] });
             }
         }
+
+        // Add captures
+        const captures = getCapturesForPiece(row, col, player);
+        moves.push(...captures);
 
         return moves;
     }
@@ -328,10 +313,9 @@ const Checkers = (() => {
         if (piece === EMPTY || getOwner(piece) !== player) return [];
 
         const captures = [];
-        const directions = [[-1, -1], [-1, 1], [1, -1], [1, 1]]; // Kings and regular capture in all directions if jumping
+        const directions = getMoveDirections(piece, player); // Only forward for non-kings, all for kings
 
         for (const [dr, dc] of directions) {
-            // For regular pieces, restrict forward-only for normal moves but allow backward captures
             const mr = row + dr;
             const mc = col + dc;
             const jr = row + 2 * dr;

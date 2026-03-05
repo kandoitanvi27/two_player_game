@@ -972,6 +972,51 @@ button {
     animation: win-pulse 0.8s ease-in-out infinite alternate;
 }
 
+/* ---------- Dots & Boxes Grid Size Selector ---------- */
+.db-size-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+}
+
+.db-size-selector__label {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-right: var(--space-xs);
+}
+
+.db-size-btn {
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-glass);
+    background: var(--bg-glass);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.db-size-btn:hover {
+    background: var(--bg-glass-hover);
+    color: var(--text-primary);
+    border-color: var(--border-glass-hover);
+}
+
+.db-size-btn--active {
+    background: var(--cyan);
+    color: var(--bg-primary);
+    border-color: var(--cyan);
+}
+
+.db-size-btn--active:hover {
+    background: var(--cyan);
+    color: var(--bg-primary);
+}
+
 /* ---------- Dots & Boxes Box Counter ---------- */
 .db-box-counter {
     display: flex;
@@ -1234,6 +1279,11 @@ button {
     background: var(--border-glass);
     border-radius: var(--radius-md);
     padding: 2px;
+}
+
+.bs-board--inactive {
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 .bs-cell {

@@ -3,14 +3,17 @@
    ============================================ */
 
 const DotsBoxes = (() => {
-    const GRID_ROWS = 4; // boxes
-    const GRID_COLS = 4; // boxes
-    const DOT_ROWS = GRID_ROWS + 1;
-    const DOT_COLS = GRID_COLS + 1;
+    const GRID_SIZES = [
+        { label: '3×3', rows: 3, cols: 3 },
+        { label: '4×4', rows: 4, cols: 4 },
+        { label: '5×5', rows: 5, cols: 5 },
+        { label: '6×6', rows: 6, cols: 6 }
+    ];
     const DOT_SIZE = 14;
-    const GAP = 70;
     const PLAYER_NAMES = ['Player 1', 'Player 2'];
 
+    let gridRows = 4, gridCols = 4;
+    let dotRows, dotCols, gap;
     let hLines, vLines, boxes;
     let turnManager, scoreTracker, undoStack;
     let gameOver, container, boxScores;
@@ -28,6 +31,13 @@ const DotsBoxes = (() => {
         container.innerHTML = `
             ${buildTurnIndicator(PLAYER_NAMES)}
             ${buildScoreboard(scoreTracker.getScores(), PLAYER_NAMES)}
+            <div class="db-size-selector" id="db-size-selector">
+                <span class="db-size-selector__label">Grid Size:</span>
+                ${GRID_SIZES.map(s => `
+                    <button class="db-size-btn ${s.rows === gridRows && s.cols === gridCols ? 'db-size-btn--active' : ''}"
+                            data-rows="${s.rows}" data-cols="${s.cols}">${s.label}</button>
+                `).join('')}
+            </div>
             <div class="db-box-counter" id="db-box-counter">
                 <span class="db-count db-count--p1" id="db-box-count-0">★ 0</span>
                 <span class="db-count db-count--p2" id="db-box-count-1">✦ 0</span>
@@ -38,6 +48,26 @@ const DotsBoxes = (() => {
             onUndo: undo,
             onRestart: restart
         }));
+
+        // Attach grid size button listeners
+        document.querySelectorAll('.db-size-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                changeGridSize(parseInt(btn.dataset.rows), parseInt(btn.dataset.cols));
+            });
+        });
+    }
+
+    function changeGridSize(rows, cols) {
+        gridRows = rows;
+        gridCols = cols;
+        // Update active button
+        document.querySelectorAll('.db-size-btn').forEach(btn => {
+            btn.classList.toggle('db-size-btn--active',
+                parseInt(btn.dataset.rows) === rows && parseInt(btn.dataset.cols) === cols);
+        });
+        scoreTracker = new ScoreTracker(`dots-boxes-${rows}x${cols}`);
+        updateScoreboard(scoreTracker.getScores());
+        startNewRound();
     }
 
     function updateBoxCounter() {
@@ -48,12 +78,17 @@ const DotsBoxes = (() => {
     }
 
     function startNewRound() {
-        // hLines[row][col] : row = 0..GRID_ROWS, col = 0..GRID_COLS-1
-        hLines = Array.from({ length: DOT_ROWS }, () => Array(GRID_COLS).fill(null));
-        // vLines[row][col] : row = 0..GRID_ROWS-1, col = 0..DOT_COLS-1
-        vLines = Array.from({ length: GRID_ROWS }, () => Array(DOT_COLS).fill(null));
-        // boxes[row][col] : row = 0..GRID_ROWS-1, col = 0..GRID_COLS-1
-        boxes = Array.from({ length: GRID_ROWS }, () => Array(GRID_COLS).fill(null));
+        dotRows = gridRows + 1;
+        dotCols = gridCols + 1;
+        // Scale gap based on grid size so larger grids fit on screen
+        gap = gridRows <= 3 ? 80 : gridRows <= 4 ? 70 : gridRows <= 5 ? 58 : 48;
+
+        // hLines[row][col] : row = 0..gridRows, col = 0..gridCols-1
+        hLines = Array.from({ length: dotRows }, () => Array(gridCols).fill(null));
+        // vLines[row][col] : row = 0..gridRows-1, col = 0..dotCols-1
+        vLines = Array.from({ length: gridRows }, () => Array(dotCols).fill(null));
+        // boxes[row][col] : row = 0..gridRows-1, col = 0..gridCols-1
+        boxes = Array.from({ length: gridRows }, () => Array(gridCols).fill(null));
         boxScores = [0, 0];
         gameOver = false;
         turnManager.reset();
@@ -67,22 +102,22 @@ const DotsBoxes = (() => {
         const boardEl = document.getElementById('db-board');
         boardEl.innerHTML = '';
 
-        const totalWidth = (DOT_COLS - 1) * GAP + DOT_SIZE;
-        const totalHeight = (DOT_ROWS - 1) * GAP + DOT_SIZE;
+        const totalWidth = (dotCols - 1) * gap + DOT_SIZE;
+        const totalHeight = (dotRows - 1) * gap + DOT_SIZE;
         boardEl.style.width = totalWidth + 'px';
         boardEl.style.height = totalHeight + 'px';
         boardEl.style.position = 'relative';
 
         // Draw boxes
-        for (let r = 0; r < GRID_ROWS; r++) {
-            for (let c = 0; c < GRID_COLS; c++) {
+        for (let r = 0; r < gridRows; r++) {
+            for (let c = 0; c < gridCols; c++) {
                 const box = document.createElement('div');
                 box.className = 'db-box';
                 box.id = `db-box-${r}-${c}`;
-                box.style.left = (c * GAP + DOT_SIZE) + 'px';
-                box.style.top = (r * GAP + DOT_SIZE) + 'px';
-                box.style.width = (GAP - DOT_SIZE) + 'px';
-                box.style.height = (GAP - DOT_SIZE) + 'px';
+                box.style.left = (c * gap + DOT_SIZE) + 'px';
+                box.style.top = (r * gap + DOT_SIZE) + 'px';
+                box.style.width = (gap - DOT_SIZE) + 'px';
+                box.style.height = (gap - DOT_SIZE) + 'px';
 
                 if (boxes[r][c] !== null) {
                     box.classList.add(`db-box--p${boxes[r][c] + 1}`);
@@ -94,14 +129,14 @@ const DotsBoxes = (() => {
         }
 
         // Draw horizontal lines
-        for (let r = 0; r < DOT_ROWS; r++) {
-            for (let c = 0; c < GRID_COLS; c++) {
+        for (let r = 0; r < dotRows; r++) {
+            for (let c = 0; c < gridCols; c++) {
                 const line = document.createElement('div');
                 line.className = 'db-line db-line--h';
                 line.id = `db-hline-${r}-${c}`;
-                line.style.left = (c * GAP + DOT_SIZE) + 'px';
-                line.style.top = (r * GAP + DOT_SIZE / 2 - 3) + 'px';
-                line.style.width = (GAP - DOT_SIZE) + 'px';
+                line.style.left = (c * gap + DOT_SIZE) + 'px';
+                line.style.top = (r * gap + DOT_SIZE / 2 - 3) + 'px';
+                line.style.width = (gap - DOT_SIZE) + 'px';
 
                 if (hLines[r][c] !== null) {
                     line.classList.add('db-line--drawn', `db-line--p${hLines[r][c] + 1}`);
@@ -113,14 +148,14 @@ const DotsBoxes = (() => {
         }
 
         // Draw vertical lines
-        for (let r = 0; r < GRID_ROWS; r++) {
-            for (let c = 0; c < DOT_COLS; c++) {
+        for (let r = 0; r < gridRows; r++) {
+            for (let c = 0; c < dotCols; c++) {
                 const line = document.createElement('div');
                 line.className = 'db-line db-line--v';
                 line.id = `db-vline-${r}-${c}`;
-                line.style.left = (c * GAP + DOT_SIZE / 2 - 3) + 'px';
-                line.style.top = (r * GAP + DOT_SIZE) + 'px';
-                line.style.height = (GAP - DOT_SIZE) + 'px';
+                line.style.left = (c * gap + DOT_SIZE / 2 - 3) + 'px';
+                line.style.top = (r * gap + DOT_SIZE) + 'px';
+                line.style.height = (gap - DOT_SIZE) + 'px';
 
                 if (vLines[r][c] !== null) {
                     line.classList.add('db-line--drawn', `db-line--p${vLines[r][c] + 1}`);
@@ -132,12 +167,12 @@ const DotsBoxes = (() => {
         }
 
         // Draw dots (on top of everything)
-        for (let r = 0; r < DOT_ROWS; r++) {
-            for (let c = 0; c < DOT_COLS; c++) {
+        for (let r = 0; r < dotRows; r++) {
+            for (let c = 0; c < dotCols; c++) {
                 const dot = document.createElement('div');
                 dot.className = 'db-dot';
-                dot.style.left = (c * GAP) + 'px';
-                dot.style.top = (r * GAP) + 'px';
+                dot.style.left = (c * gap) + 'px';
+                dot.style.top = (r * gap) + 'px';
                 boardEl.appendChild(dot);
             }
         }
@@ -200,7 +235,7 @@ const DotsBoxes = (() => {
         }
 
         // Check if game is over
-        const totalBoxes = GRID_ROWS * GRID_COLS;
+        const totalBoxes = gridRows * gridCols;
         if (boxScores[0] + boxScores[1] >= totalBoxes) {
             gameOver = true;
             let winner = null;
@@ -228,22 +263,22 @@ const DotsBoxes = (() => {
 
         // For a horizontal line at (r, c), it borders:
         //   box above: (r-1, c) if r > 0
-        //   box below: (r, c) if r < GRID_ROWS
+        //   box below: (r, c) if r < gridRows
         // For a vertical line at (r, c), it borders:
         //   box left: (r, c-1) if c > 0
-        //   box right: (r, c) if c < GRID_COLS
+        //   box right: (r, c) if c < gridCols
 
         const adjacentBoxes = [];
         if (type === 'h') {
             if (r > 0) adjacentBoxes.push([r - 1, c]);
-            if (r < GRID_ROWS) adjacentBoxes.push([r, c]);
+            if (r < gridRows) adjacentBoxes.push([r, c]);
         } else {
             if (c > 0) adjacentBoxes.push([r, c - 1]);
-            if (c < GRID_COLS) adjacentBoxes.push([r, c]);
+            if (c < gridCols) adjacentBoxes.push([r, c]);
         }
 
         for (const [br, bc] of adjacentBoxes) {
-            if (br < 0 || br >= GRID_ROWS || bc < 0 || bc >= GRID_COLS) continue;
+            if (br < 0 || br >= gridRows || bc < 0 || bc >= gridCols) continue;
             if (boxes[br][bc] !== null) continue;
 
             if (isBoxComplete(br, bc)) {

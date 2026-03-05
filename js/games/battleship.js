@@ -255,22 +255,20 @@ const Battleship = (() => {
     }
 
     function renderBattle() {
-        const opponent = 1 - currentPlayer;
-
         container.innerHTML = `
             ${buildTurnIndicator(PLAYER_NAMES)}
             <div class="bs-boards" id="bs-boards">
                 <div class="bs-board-container">
-                    <div class="bs-board-label" style="color: ${currentPlayer === 0 ? 'var(--player1-color)' : 'var(--player2-color)'}">
-                        Your Fleet
+                    <div class="bs-board-label" style="color: var(--player1-color);">
+                        ${PLAYER_NAMES[0]}${currentPlayer === 0 ? ' 🎯' : ''}
                     </div>
-                    <div class="bs-board" id="bs-own-board"></div>
+                    <div class="bs-board ${currentPlayer === 1 ? '' : 'bs-board--inactive'}" id="bs-board-0"></div>
                 </div>
                 <div class="bs-board-container">
-                    <div class="bs-board-label" style="color: var(--text-primary);">
-                        Enemy Waters — Fire!
+                    <div class="bs-board-label" style="color: var(--player2-color);">
+                        ${PLAYER_NAMES[1]}${currentPlayer === 1 ? ' 🎯' : ''}
                     </div>
-                    <div class="bs-board" id="bs-attack-board"></div>
+                    <div class="bs-board ${currentPlayer === 0 ? '' : 'bs-board--inactive'}" id="bs-board-1"></div>
                 </div>
             </div>
             <div class="bs-fleet-status" id="bs-fleet-status" style="margin-top: var(--space-md); display: flex; gap: var(--space-sm); justify-content: center; flex-wrap: wrap;"></div>
@@ -282,55 +280,39 @@ const Battleship = (() => {
 
         updateTurnIndicator(currentPlayer);
 
-        // Own board — show ships
-        const ownBoardEl = document.getElementById('bs-own-board');
-        for (let r = 0; r < SIZE; r++) {
-            for (let c = 0; c < SIZE; c++) {
-                const cell = document.createElement('div');
-                cell.className = 'bs-cell';
+        // Render both boards — show only shots (hits/misses), not ships
+        for (let p = 0; p < 2; p++) {
+            const boardEl = document.getElementById(`bs-board-${p}`);
+            // "attacker" is the player who fired shots AT this board
+            const attacker = 1 - p;
 
-                if (boards[currentPlayer][r][c] !== null) {
-                    cell.classList.add('bs-cell--ship');
-                }
+            for (let r = 0; r < SIZE; r++) {
+                for (let c = 0; c < SIZE; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'bs-cell';
 
-                // Show opponent shots on our board
-                if (shots[opponent][r][c]) {
-                    if (boards[currentPlayer][r][c] !== null) {
-                        cell.classList.add('bs-cell--hit');
-                    } else {
-                        cell.classList.add('bs-cell--miss');
-                    }
-                    cell.classList.add('bs-cell--shot');
-                }
-
-                ownBoardEl.appendChild(cell);
-            }
-        }
-
-        // Attack board — show our shots on opponent
-        const attackBoardEl = document.getElementById('bs-attack-board');
-        for (let r = 0; r < SIZE; r++) {
-            for (let c = 0; c < SIZE; c++) {
-                const cell = document.createElement('div');
-                cell.className = 'bs-cell';
-
-                if (shots[currentPlayer][r][c]) {
-                    if (boards[opponent][r][c] !== null) {
-                        cell.classList.add('bs-cell--hit');
-                        // Check if ship is sunk
-                        const shipIdx = boards[opponent][r][c];
-                        const ship = ships[opponent][shipIdx];
-                        if (ship && ship.sunk) {
-                            cell.classList.add('bs-cell--sunk');
+                    // Show shots that have been fired at this player's board
+                    if (shots[attacker][r][c]) {
+                        if (boards[p][r][c] !== null) {
+                            cell.classList.add('bs-cell--hit');
+                            const shipIdx = boards[p][r][c];
+                            const ship = ships[p][shipIdx];
+                            if (ship && ship.sunk) {
+                                cell.classList.add('bs-cell--sunk');
+                            }
+                        } else {
+                            cell.classList.add('bs-cell--miss');
                         }
-                    } else {
-                        cell.classList.add('bs-cell--miss');
+                        cell.classList.add('bs-cell--shot');
                     }
-                    cell.classList.add('bs-cell--shot');
-                }
 
-                cell.addEventListener('click', () => handleAttack(r, c));
-                attackBoardEl.appendChild(cell);
+                    // Only allow clicking on the opponent's board
+                    if (p !== currentPlayer && phase === PHASES.BATTLE) {
+                        cell.addEventListener('click', () => handleAttack(r, c));
+                    }
+
+                    boardEl.appendChild(cell);
+                }
             }
         }
 
@@ -417,31 +399,10 @@ const Battleship = (() => {
             } else {
                 setTimeout(() => {
                     currentPlayer = 1 - currentPlayer;
-                    showBattleTransition();
+                    renderBattle();
                 }, 1200);
             }
         }
-    }
-
-    function showBattleTransition() {
-        container.innerHTML = `
-            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height: 60vh; text-align: center;">
-                <h2 style="color: ${currentPlayer === 0 ? 'var(--player1-color)' : 'var(--player2-color)'}; margin-bottom: var(--space-lg);">
-                    ${PLAYER_NAMES[currentPlayer]}'s Turn
-                </h2>
-                <p style="color: var(--text-secondary); margin-bottom: var(--space-xl);">Pass the device and click when ready.</p>
-                <div style="display: flex; gap: var(--space-md); justify-content: center;">
-                    <button class="btn btn--primary" id="bs-battle-ready-btn">Fire Away! 🎯</button>
-                    <button class="btn btn--outline" id="bs-battle-lobby-btn">🏠 Lobby</button>
-                </div>
-            </div>
-        `;
-        document.getElementById('bs-battle-ready-btn').addEventListener('click', () => {
-            renderBattle();
-        });
-        document.getElementById('bs-battle-lobby-btn').addEventListener('click', () => {
-            window.location.hash = '#/two-player';
-        });
     }
 
     function isShipSunk(ship, attacker) {

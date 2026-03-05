@@ -109,7 +109,6 @@ const App = (() => {
                 <ul>
                     <li>Pieces move diagonally forward on dark squares.</li>
                     <li>Capture by jumping over an opponent's piece to an empty square beyond.</li>
-                    <li>If a capture is available, you must take it.</li>
                     <li>Multi-jump: after a capture, if another capture is available, you must continue.</li>
                     <li>Pieces reaching the far row become Kings and can move backwards.</li>
                 </ul>
