@@ -139,6 +139,41 @@ const App = (() => {
                     <li>The game announces when a ship is sunk.</li>
                 </ul>
             `
+        },
+        {
+            id: 'chess',
+            title: 'Chess',
+            emoji: '♔♚',
+            image: 'assets/images/chess.png',
+            desc: 'The classic game of strategy — checkmate your opponent!',
+            tags: ['Strategy', '8×8 Board'],
+            module: () => Chess,
+            rules: `
+                <h3>Objective</h3>
+                <ul>
+                    <li>Checkmate your opponent's King — put it in check with no escape.</li>
+                </ul>
+                <h3>Pieces & Movement</h3>
+                <ul>
+                    <li><strong>King (♔)</strong> — Moves 1 square in any direction.</li>
+                    <li><strong>Queen (♕)</strong> — Moves any number of squares in any direction.</li>
+                    <li><strong>Rook (♖)</strong> — Moves any number of squares horizontally or vertically.</li>
+                    <li><strong>Bishop (♗)</strong> — Moves any number of squares diagonally.</li>
+                    <li><strong>Knight (♘)</strong> — Moves in an L-shape (2+1). Can jump over pieces.</li>
+                    <li><strong>Pawn (♙)</strong> — Moves forward 1 square (or 2 from starting row). Captures diagonally.</li>
+                </ul>
+                <h3>Special Moves</h3>
+                <ul>
+                    <li><strong>Castling</strong> — King moves 2 squares toward a rook; the rook jumps over. Only if neither has moved and path is clear and king isn't in check.</li>
+                    <li><strong>En Passant</strong> — A pawn can capture an opponent's pawn that just moved 2 squares forward, as if it only moved 1.</li>
+                    <li><strong>Promotion</strong> — A pawn reaching the last rank is promoted to Queen, Rook, Bishop, or Knight.</li>
+                </ul>
+                <h3>End Conditions</h3>
+                <ul>
+                    <li><strong>Checkmate</strong> — King is in check and cannot escape. The attacker wins!</li>
+                    <li><strong>Stalemate</strong> — Not in check but no legal moves. Game is a draw.</li>
+                </ul>
+            `
         }
     ];
 

@@ -1111,6 +1111,260 @@ button {
     color: var(--player2-color);
 }
 
+/* ---------- Chess ---------- */
+.ch-board-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    perspective: 900px;
+}
+
+.ch-board {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    gap: 1px;
+    width: 480px;
+    height: 480px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(0, 240, 255, 0.1),
+        0 0 80px rgba(255, 0, 110, 0.05);
+    border: 2px solid rgba(0, 240, 255, 0.25);
+    background: rgba(0, 240, 255, 0.08);
+    transform: rotateX(18deg);
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ch-board--rotated {
+    transform: rotateX(18deg) rotate(180deg);
+}
+
+.ch-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.ch-cell--light {
+    background: linear-gradient(135deg, #1e2d50, #1a2744);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.ch-cell--dark {
+    background: linear-gradient(135deg, #111d36, #0a1528);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+.ch-cell--selected {
+    background: rgba(0, 240, 255, 0.25) !important;
+    box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.4), 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
+.ch-cell--highlight::after {
+    content: '';
+    position: absolute;
+    width: 28%;
+    height: 28%;
+    border-radius: 50%;
+    background: rgba(0, 240, 255, 0.4);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+}
+
+.ch-cell--capture {
+    background: rgba(255, 0, 110, 0.2) !important;
+    box-shadow: inset 0 0 15px rgba(255, 0, 110, 0.3), 0 0 8px rgba(255, 0, 110, 0.15);
+}
+
+.ch-cell--check {
+    background: rgba(255, 0, 0, 0.2) !important;
+    box-shadow: inset 0 0 20px rgba(255, 0, 0, 0.4);
+    animation: check-pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes check-pulse {
+    0% {
+        box-shadow: inset 0 0 15px rgba(255, 0, 0, 0.3);
+    }
+
+    100% {
+        box-shadow: inset 0 0 30px rgba(255, 0, 0, 0.6), 0 0 12px rgba(255, 0, 0, 0.2);
+    }
+}
+
+.ch-cell:hover:not(.ch-cell--selected) {
+    background: rgba(0, 240, 255, 0.1) !important;
+    transform: translateZ(2px);
+}
+
+/* --- 3D SVG Chess Pieces --- */
+.ch-piece {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    user-select: none;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s ease;
+    cursor: grab;
+}
+
+.ch-piece-svg {
+    width: 82%;
+    height: 82%;
+    position: absolute;
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.ch-piece-svg--shadow {
+    transform: translate(2px, 3px);
+    opacity: 0.7;
+    filter: blur(0.5px);
+}
+
+.ch-piece-svg--main {
+    z-index: 1;
+}
+
+/* Player 1 (White) – neon pink glow */
+.ch-piece--p1 .ch-piece-svg--main {
+    filter:
+        drop-shadow(0 0 5px rgba(255, 0, 110, 0.7)) drop-shadow(0 0 12px rgba(255, 0, 110, 0.35)) drop-shadow(0 5px 6px rgba(0, 0, 0, 0.45));
+}
+
+/* Player 2 (Black) – neon cyan glow */
+.ch-piece--p2 .ch-piece-svg--main {
+    filter:
+        drop-shadow(0 0 5px rgba(0, 240, 255, 0.7)) drop-shadow(0 0 12px rgba(0, 240, 255, 0.35)) drop-shadow(0 5px 6px rgba(0, 0, 0, 0.45));
+}
+
+/* Counter-rotate pieces when board is rotated so they stay upright */
+.ch-board--rotated .ch-piece {
+    transform: rotate(180deg);
+}
+
+/* Hover effects */
+.ch-cell:hover .ch-piece {
+    transform: scale(1.15) translateY(-3px);
+}
+
+.ch-cell:hover .ch-piece--p1 .ch-piece-svg--main,
+.ch-cell:hover .ch-piece .ch-piece-svg--main {
+    filter:
+        drop-shadow(0 0 8px rgba(255, 0, 110, 0.9)) drop-shadow(0 0 18px rgba(255, 0, 110, 0.5)) drop-shadow(0 8px 8px rgba(0, 0, 0, 0.55));
+}
+
+.ch-cell:hover .ch-piece--p2 .ch-piece-svg--main {
+    filter:
+        drop-shadow(0 0 8px rgba(0, 240, 255, 0.9)) drop-shadow(0 0 18px rgba(0, 240, 255, 0.5)) drop-shadow(0 8px 8px rgba(0, 0, 0, 0.55));
+}
+
+.ch-board--rotated .ch-cell:hover .ch-piece {
+    transform: rotate(180deg) scale(1.15) translateY(3px);
+}
+
+/* --- Captured pieces sidebar --- */
+.ch-captured {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-height: 28px;
+    flex-wrap: wrap;
+}
+
+.ch-captured-piece {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    position: relative;
+    opacity: 0.7;
+}
+
+.ch-piece-svg--sm {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.ch-captured-piece .ch-piece-svg--shadow {
+    transform: translate(1px, 1.5px);
+    opacity: 0.5;
+}
+
+/* --- Promotion modal pieces --- */
+.ch-promo-piece {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 48px;
+    height: 48px;
+}
+
+.ch-promo-piece .ch-piece-svg {
+    width: 90%;
+    height: 90%;
+    position: absolute;
+}
+
+/* Chess Promotion Modal */
+.ch-promo-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.ch-promo-modal {
+    background: var(--bg-secondary);
+    padding: var(--space-xl);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.15);
+}
+
+.ch-promo-options {
+    display: flex;
+    gap: var(--space-md);
+    justify-content: center;
+}
+
+.ch-promo-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--border-glass);
+    background: var(--bg-glass);
+    cursor: pointer;
+    font-size: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+}
+
+.ch-promo-btn:hover {
+    background: var(--bg-glass-hover);
+    border-color: var(--cyan);
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+}
+
 /* ---------- Reversi / Othello ---------- */
 .rv-board {
     display: grid;
